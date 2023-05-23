@@ -4,6 +4,10 @@ const mongoose = require('mongoose')
 const exphbs = require('express-handlebars')
 const Todo = require('./models/todo')
 const bodyParser = require('body-parser')
+// 載入 method-override
+const methodOverride = require('method-override') 
+// 設定每一筆請求都會透過 methodOverride 進行前置處理
+
 
 // 加入這段 code, 僅在非正式環境時, 使用 dotenv
 if (process.env.NODE_ENV !== 'production') {
@@ -28,6 +32,7 @@ app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }))
 app.set('view engine', 'hbs')
 
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(methodOverride('_method'))
 
 app.get('/', (req, res) => {
     Todo.find() 
@@ -66,7 +71,7 @@ app.get('/', (req, res) => {
       .catch(error => console.log(error))
   })
 
-  app.post('/todos/:id/edit', (req, res) => {
+  app.put('/todos/:id', (req, res) => {
     const id = req.params.id
     const {name, isDone} = req.body
     return Todo.findById(id)
@@ -79,7 +84,7 @@ app.get('/', (req, res) => {
       .catch(error => console.log(error))
   })
 
-  app.post('/todos/:id/delete', (req, res) => {
+  app.delete('/todos/:id', (req, res) => {
     const id = req.params.id
     return Todo.findById(id)
       .then(todo => todo.remove())
